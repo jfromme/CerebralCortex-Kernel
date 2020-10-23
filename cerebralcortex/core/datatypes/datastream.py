@@ -29,8 +29,6 @@ from typing import List
 from datetime import timezone, datetime
 
 from cerebralcortex.core.metadata_manager.stream.metadata import Metadata, DataDescriptor, ModuleMetadata
-from cerebralcortex.core.plotting.basic_plots import BasicPlots
-from cerebralcortex.core.plotting.stress_plots import StressStreamPlots
 
 from cerebralcortex.algorithms.utils.mprov_helper import CC_get_prov_connection
 
@@ -61,8 +59,6 @@ class DataStream(DataFrame):
         self._metadata = metadata
         self._prov_stream_node = None
         self._write_metadata()
-        self._basic_plots = BasicPlots()
-        self._stress_plots = StressStreamPlots()
 
         if isinstance(data, DataFrame):
             super(self.__class__, self).__init__(data._jdf, data.sql_ctx)
