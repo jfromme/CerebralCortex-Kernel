@@ -26,6 +26,11 @@
 import re
 import sys
 from typing import List
+from datetime import timezone, datetime
+
+from cerebralcortex.core.metadata_manager.stream.metadata import Metadata, DataDescriptor, ModuleMetadata
+
+from cerebralcortex.algorithms.utils.mprov_helper import CC_get_prov_connection
 
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
@@ -49,9 +54,11 @@ class DataStream(DataFrame):
             metadata (Metadata): metadata of data
 
         """
-        
+
         self._data = data
         self._metadata = metadata
+        self._prov_stream_node = None
+        self._write_metadata()
 
         if isinstance(data, DataFrame):
             super(self.__class__, self).__init__(data._jdf, data.sql_ctx)
@@ -99,6 +106,39 @@ class DataStream(DataFrame):
             metadata (Metadata):
         """
         self._metadata = metadata
+        self._write_metadata()
+
+    def _write_metadata(self):
+        mprov_conn = CC_get_prov_connection()
+        if mprov_conn is None:
+            return
+
+        # Initialize the stream node
+        if self._prov_stream_node is None:
+            self._prov_stream_node = mprov_conn.create_collection(self._metadata.name, 0)
+
+        annot = {'description': self._metadata.description, 'annotations': str(self._metadata.annotations),
+                 'schema': self._metadata.data_descriptor}
+
+        mprov_conn.store_annotations(self._prov_stream_node, annot)
+
+        # Ensure there's a node for each input stream
+        in_stream_nodes = []
+        for in_stream in self._metadata.input_streams:
+            in_stream_nodes.append(mprov_conn.create_collection(in_stream, 0))
+
+        # Capture the derivation
+        for in_stream in in_stream_nodes:
+            mprov_conn.store_derived_from(self._prov_stream_node, in_stream)
+
+        now = datetime.now(timezone.utc)
+        for module in self._metadata.modules:
+            assert isinstance(module, ModuleMetadata)
+            act = mprov_conn.store_activity(module.name, now, now, 0)
+            for in_stream in in_stream_nodes:
+                mprov_conn.store_used(act, in_stream)
+                mprov_conn.store_generated_by(self._prov_stream_node, act)
+
 
     @property
     def data(self):
