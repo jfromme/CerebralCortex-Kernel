@@ -49,7 +49,6 @@ def MProvAgg_empty():
         return wrapper
     return inner_function
 
-
 def CC_get_prov_connection(graph_name=None):
     mprov = os.getenv("ENABLE_MPROV")
     if graph_name is None:
