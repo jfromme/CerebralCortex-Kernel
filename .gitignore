@@ -6,3 +6,4 @@ __pycache__
 *.pypirc
 /.idea/
 CerebralCortex-Kernel.iml
+cerebralcortex_kernel.egg-info/

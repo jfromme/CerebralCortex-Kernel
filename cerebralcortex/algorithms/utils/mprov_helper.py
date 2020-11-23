@@ -59,14 +59,15 @@ def CC_get_prov_connection(graph_name=None):
                                                   host=os.getenv("MPROV_HOST"), graph=graph_name)
         mprov_conn = MProvConnectionCache.get_connection(connection_key)
         if mprov_conn:
-            mprov_conn.get_low_level_api().create_provenance_graph(graph_name)
+            mprov_conn.set_graph(graph_name)
+            mprov_conn.create_or_reuse_graph()
             return {"connection":mprov_conn, "connection_key":connection_key}
     return None
 
 def CC_MProvAgg(in_stream_name,op,out_stream_name,in_stream_key=['index'],out_stream_key=['index'],map=None, graph_name=None):
     mprov_conn = CC_get_prov_connection(graph_name)
     if mprov_conn:
-        return MProvAgg(in_stream_name=in_stream_name, op=op, out_stream_name=out_stream_name, in_stream_key=in_stream_key, out_stream_key=out_stream_key, connection_key=mprov_conn.get("connection_key"))
+        return MProvAgg(in_stream_name=in_stream_name, out_stream_name=out_stream_name, in_stream_key=in_stream_key, out_stream_key=out_stream_key, connection_key=mprov_conn.get("connection_key"))
     else:
         return MProvAgg_empty()
 
