@@ -57,10 +57,12 @@ def CC_get_prov_connection(graph_name=None):
     if mprov=="True":
         connection_key = MProvConnectionCache.Key(user=os.getenv("MPROV_USER"), password=os.getenv("MPROV_PASSWORD"),
                                                   host=os.getenv("MPROV_HOST"), graph=graph_name)
-        mprov_conn = MProvConnectionCache.get_connection(connection_key)
+        if os.getenv("MPROV_DEBUG_CONNECTION"):
+            import logging
+            from pennprov.connection.mprov_connection_cache import logger as cache_logger
+            cache_logger.setLevel(level=logging.DEBUG)
+        mprov_conn = MProvConnectionCache.get_connection(connection_key, ensure_graph=True)
         if mprov_conn:
-            mprov_conn.set_graph(graph_name)
-            mprov_conn.create_or_reuse_graph()
             return {"connection":mprov_conn, "connection_key":connection_key}
     return None
 

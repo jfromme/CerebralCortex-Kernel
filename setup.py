@@ -30,7 +30,7 @@ reqs = [
     'py-ecg-detectors==1.0.2',
     'statsmodels==0.11.1',
     'sqlalchemy==1.3.17',
-    'pennprov==2.2.12.dev5',
+    'pennprov==2.2.12',
     'shapely==1.7.0'
 ]
 
