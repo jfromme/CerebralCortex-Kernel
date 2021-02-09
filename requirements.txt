@@ -24,4 +24,4 @@ ipyleaflet
 scipy
 statsmodels==0.11.1
 sqlalchemy==1.3.17
-pennprov==2.2.12
+pennprov>=2.2.12, <2.2.13
