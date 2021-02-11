@@ -116,8 +116,13 @@ class DataStream(DataFrame):
 
         # Initialize the stream node
         if self._prov_stream_node is None:
-            name = self._metadata.name if self._metadata.name else 'unnamed_metadata'
-            self._prov_stream_node = mprov_conn.create_collection(name, 0)
+            # This might be undefined
+            if self._metadata.name:
+                self._prov_stream_node = mprov_conn.create_collection(self._metadata.name, 0)
+
+        # if still no _prov_stream_node, because we don't have a metadata.name, give up
+        if self._prov_stream_node is None:
+            return
 
         annot = {'description': self._metadata.description, 'annotations': str(self._metadata.annotations),
                  'schema': str(self._metadata.data_descriptor)}
@@ -127,8 +132,9 @@ class DataStream(DataFrame):
         # Ensure there's a node for each input stream
         in_stream_nodes = []
         for in_stream in self._metadata.input_streams:
-            in_stream_name = in_stream if in_stream else 'in_stream_name'
-            in_stream_nodes.append(mprov_conn.create_collection(in_stream_name, 0))
+            # seen this be undefined, so skip if that's the case
+            if in_stream:
+                in_stream_nodes.append(mprov_conn.create_collection(in_stream, 0))
 
         # Capture the derivation
         for in_stream in in_stream_nodes:
