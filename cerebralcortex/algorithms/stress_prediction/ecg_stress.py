@@ -77,7 +77,7 @@ def compute_stress_probability(stress_features_normalized,
     ecg_model = pickle.load(open(model_path,'rb'))
 
     @pandas_udf(schema, PandasUDFType.GROUPED_MAP)
-    @CC_MProvAgg('"org.md2k.autosense.ecg.normalized.features"', 'get_hrv_features', stream_name, ['user', 'timestamp'], ['user', 'timestamp'])
+    @CC_MProvAgg('org.md2k.autosense.ecg.normalized.features', 'get_hrv_features', stream_name, ['user', 'timestamp'], ['user', 'timestamp'])
     def get_stress_prob(data):
         """
 
